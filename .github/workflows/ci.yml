@@ -69,4 +69,4 @@ jobs:
             cd /home/html/midway
             ls
             node -v
-            pm2 reload NuxtSSR
+            pm2 reload MidwayIntegration
