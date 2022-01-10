@@ -39,7 +39,7 @@ jobs:
         run: mkdir output && cp -r build output/ && cp -r dist output/ && cp -r bootstrap.js output/ && cp -r ecosystem.config.js output/ && cp package.json output/
 
       - name: install production
-        run: cd dist && npm install --production && cd ../
+        run: cd output && npm install --production && cd ../
 
       # 部署到阿里云
       - name: Deploy to Aliyun
