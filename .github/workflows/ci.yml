@@ -1,0 +1,72 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  ci:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node: [14]
+
+    steps:
+      - name: Checkout 🛎
+        uses: actions/checkout@master
+
+      - name: Setup node env 🏗
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: ${{ matrix.node }}
+          check-latest: true
+
+      - name: Install dependencies 👨🏻‍💻
+        run: npm i
+
+      - name: Build
+        run: npm run build
+        
+      - name: Create output folder
+        run: mkdir output && cp -r build output/ && cp -r dist output/ && cp -r bootstrap.js output/ && cp -r ecosystem.config.js output/ && cp package.json output/
+
+      - name: install production
+        run: cd dist && npm install --production && cd ../
+
+      # 部署到阿里云
+      - name: Deploy to Aliyun
+        uses: easingthemes/ssh-deploy@v2.1.1
+        env:
+          # 私钥
+          SSH_PRIVATE_KEY: ${{ secrets.ACCESS_KEY_SECRET }}
+          # scp参数
+          ARGS: "-avzr --delete"
+          # 源目录，编译后生成的文件目录
+          SOURCE: "./output/"
+          # 服务器ip：换成你的服务器IP
+          REMOTE_HOST: "120.25.159.52"
+          # 用户
+          REMOTE_USER: "root"
+          # 目标地址 你在服务器上部署代码的地方
+          TARGET: "/home/html/midway"
+
+      - name: Start server
+        uses: appleboy/ssh-action@master
+        with:
+          host: "120.25.159.52"
+          username: "root"
+          key: ${{ secrets.ACCESS_KEY_SECRET }}
+          port: "22"
+          script: |
+            cd /home/html/midway
+            ls
+            node -v
+            pm2 reload NuxtSSR
