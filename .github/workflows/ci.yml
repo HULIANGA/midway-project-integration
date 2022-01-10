@@ -36,7 +36,15 @@ jobs:
         run: npm run build
         
       - name: Create output folder
-        run: mkdir output && cp -r build output/ && cp -r dist output/ && cp -r bootstrap.js output/ && cp -r ecosystem.config.js output/ && cp package.json output/ && cp midway.config.ts output/
+        run: |
+          mkdir output
+          cp -r build output/
+          cp -r dist output/
+          cp bootstrap.js output/
+          cp ecosystem.config.js output/
+          cp package.json output/
+          cp midway.config.ts output/
+          cp vite.config.ts output/
 
       - name: install production
         run: cd output && npm install --production && cd ../
